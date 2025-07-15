@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Plan de Estudios Interactivo – Contador Público</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 40px;
+      background: #fefefe;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 40px;
+      color: #333;
+    }
+    .malla {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .materia {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background: #ddd; /* por defecto: desbloqueada */
+      width: 200px;
+      padding: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: 0.3s;
+      cursor: pointer;
+    }
+    .materia:hover {
+      transform: scale(1.03);
+    }
+    .bloqueada {
+      background: #f7f7f7 !important;
+      color: #bbb;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .aprobada {
+      background: #f9c2d1 !important; /* rosado */
+      text-decoration: line-through;
+    }
+    .final {
+      background: #e6ccff !important; /* violeta */
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+<body>
+  <h1>Plan de Estudios Interactivo – Contador Público</h1>
+  <div class="malla" id="malla"></div>
+  <script>
+    const materias = [
+      { codigo: "VC001", nombre: "Módulo Introductorio", correlativas: [], final: false },
+      { codigo: "ATL01", nombre: "Matemática General", correlativas: [], final: false },
+      { codigo: "ATL02", nombre: "Lectura Académica", correlativas: [], final: false },
+      { codigo: "V3127", nombre: "Estudio Eficiente", correlativas: [], final: false },
+      { codigo: "V3106", nombre: "Contabilidad II", correlativas: ["V3101"], final: true },
+      { codigo: "V3147", nombre: "Taller Trabajo Final", correlativas: ["VC001", "ATL01"], final: true }
+    ];
+
+    const estado = {};
+
+    function render() {
+      const malla = document.getElementById("malla");
+      malla.innerHTML = "";
+
+      materias.forEach(mat => {
+        const desbloqueada = mat.correlativas.every(c => estado[c] === "aprobada");
+        const actual = estado[mat.codigo] || (desbloqueada ? "desbloqueada" : "bloqueada");
+
+        const div = document.createElement("div");
+        div.className = `materia ${actual}`;
+        if (estado[mat.codigo] === "aprobada" && mat.final) {
+          div.classList.add("final");
+        }
+
+        div.innerHTML = `<strong>${mat.nombre}</strong><br><small>${mat.codigo}</small>`;
+        div.onclick = () => {
+          if (actual === "bloqueada") return;
+          estado[mat.codigo] = "aprobada";
+          render();
+        };
+        malla.appendChild(div);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
