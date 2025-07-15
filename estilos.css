@@ -5,90 +5,133 @@
   <title>Plan de Estudios Interactivo – Contador Público</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      padding: 40px;
-      background: #fefefe;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9f9fb;
+      padding: 30px;
       margin: 0;
-      text-align: center;
+      color: #333;
     }
     h1 {
+      text-align: center;
       margin-bottom: 40px;
-      color: #333;
+      color: #444;
+    }
+    .anio {
+      margin-bottom: 50px;
+    }
+    .anio h2 {
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+      color: #222;
     }
     .malla {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
       gap: 12px;
-      max-width: 1200px;
-      margin: auto;
+      padding-top: 15px;
     }
     .materia {
       border: 1px solid #ccc;
       border-radius: 10px;
-      background: #ddd; /* por defecto: desbloqueada */
-      width: 200px;
-      padding: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 10px;
+      width: 180px;
+      text-align: center;
+      background-color: #e0e0e0;
       transition: 0.3s;
       cursor: pointer;
     }
     .materia:hover {
       transform: scale(1.03);
     }
-    .bloqueada {
-      background: #f7f7f7 !important;
-      color: #bbb;
-      cursor: not-allowed;
-      opacity: 0.7;
+    .desbloqueada {
+      background-color: #dcdcdc;
     }
     .aprobada {
-      background: #f9c2d1 !important; /* rosado */
+      background-color: #f8bbd0; /* rosado */
       text-decoration: line-through;
     }
-    .final {
-      background: #e6ccff !important; /* violeta */
+    .final-aprobado {
+      background-color: #e1bee7; /* violeta */
       text-decoration: line-through;
+    }
+    .bloqueada {
+      background-color: #f0f0f0;
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
   <h1>Plan de Estudios Interactivo – Contador Público</h1>
-  <div class="malla" id="malla"></div>
-  <script>
-    const materias = [
-      { codigo: "VC001", nombre: "Módulo Introductorio", correlativas: [], final: false },
-      { codigo: "ATL01", nombre: "Matemática General", correlativas: [], final: false },
-      { codigo: "ATL02", nombre: "Lectura Académica", correlativas: [], final: false },
-      { codigo: "V3127", nombre: "Estudio Eficiente", correlativas: [], final: false },
-      { codigo: "V3106", nombre: "Contabilidad II", correlativas: ["V3101"], final: true },
-      { codigo: "V3147", nombre: "Taller Trabajo Final", correlativas: ["VC001", "ATL01"], final: true }
-    ];
 
-    const estado = {};
+  <div id="contenedor"></div>
+
+  <script>
+    const materias = {
+      "Primer Año": [
+        { codigo: "VC001", nombre: "Módulo Introductorio", correlativas: [] },
+        { codigo: "ATL01", nombre: "Matemática General", correlativas: [] },
+        { codigo: "ATL02", nombre: "Lectura Académica", correlativas: [] },
+        { codigo: "V3127", nombre: "Estudio Eficiente", correlativas: [] },
+        { codigo: "V3128", nombre: "Lógica y Filosofía", correlativas: ["ATL02", "V3127"] },
+        { codigo: "V3129", nombre: "Intro Contabilidad", correlativas: ["VC001", "ATL02", "V3127"] },
+        { codigo: "V3130", nombre: "Intro Economía", correlativas: ["VC001", "ATL02", "V3127"] }
+      ],
+      "Segundo Año": [
+        { codigo: "V3131", nombre: "Cálculo Financiero", correlativas: ["ATL01", "V3129"] },
+        { codigo: "V3101", nombre: "Contabilidad I", correlativas: ["ATL01", "V3129"] },
+        { codigo: "V3102", nombre: "Intro al Derecho", correlativas: ["VC001", "ATL01", "V3128"] },
+        { codigo: "V3140", nombre: "Taller de TICs", correlativas: ["ATL01", "V3128", "V3129"] },
+        { codigo: "V3132", nombre: "Análisis Matemático", correlativas: ["VC001", "ATL01", "V3128"] },
+        { codigo: "V3104", nombre: "Sistemas de Información", correlativas: ["V3101"] },
+        { codigo: "V3133", nombre: "Ética", correlativas: ["V3128", "V3130", "V3102"] }
+      ]
+      // Agregar más años si querés
+    };
+
+    const estado = {}; // Ej: { V3101: "aprobada", V3102: "final-aprobado" }
 
     function render() {
-      const malla = document.getElementById("malla");
-      malla.innerHTML = "";
+      const contenedor = document.getElementById("contenedor");
+      contenedor.innerHTML = "";
 
-      materias.forEach(mat => {
-        const desbloqueada = mat.correlativas.every(c => estado[c] === "aprobada");
-        const actual = estado[mat.codigo] || (desbloqueada ? "desbloqueada" : "bloqueada");
+      for (const anio in materias) {
+        const bloque = document.createElement("div");
+        bloque.className = "anio";
+        const titulo = document.createElement("h2");
+        titulo.textContent = anio;
+        bloque.appendChild(titulo);
 
-        const div = document.createElement("div");
-        div.className = `materia ${actual}`;
-        if (estado[mat.codigo] === "aprobada" && mat.final) {
-          div.classList.add("final");
-        }
+        const malla = document.createElement("div");
+        malla.className = "malla";
 
-        div.innerHTML = `<strong>${mat.nombre}</strong><br><small>${mat.codigo}</small>`;
-        div.onclick = () => {
-          if (actual === "bloqueada") return;
-          estado[mat.codigo] = "aprobada";
-          render();
-        };
-        malla.appendChild(div);
-      });
+        materias[anio].forEach(m => {
+          const div = document.createElement("div");
+          div.className = "materia";
+          const aprobado = estado[m.codigo];
+
+          const desbloqueada = m.correlativas.every(c => estado[c] === "aprobada" || estado[c] === "final-aprobado");
+
+          if (aprobado === "aprobada") div.classList.add("aprobada");
+          else if (aprobado === "final-aprobado") div.classList.add("final-aprobado");
+          else if (desbloqueada) div.classList.add("desbloqueada");
+          else div.classList.add("bloqueada");
+
+          div.innerHTML = `<strong>${m.nombre}</strong><br><small>${m.codigo}</small>`;
+
+          div.onclick = () => {
+            if (!desbloqueada && !aprobado) return;
+            if (estado[m.codigo] === "aprobada") estado[m.codigo] = "final-aprobado";
+            else if (estado[m.codigo] === "final-aprobado") delete estado[m.codigo];
+            else estado[m.codigo] = "aprobada";
+            render();
+          };
+
+          malla.appendChild(div);
+        });
+        bloque.appendChild(malla);
+        contenedor.appendChild(bloque);
+      }
     }
 
     render();
