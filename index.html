@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Plan de Estudios Interactivo – Contador Público</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f2f2f2; }
+    h1 { text-align: center; }
+    .malla { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .materia {
+      border: 1px solid #aaa;
+      padding: 10px;
+      border-radius: 10px;
+      background: #eee;
+      width: 180px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .materia:hover { background: #ddd; }
+    .aprobada { background: #a4edb1 !important; }
+    .bloqueada { background: #f7c6c6 !important; opacity: 0.7; }
+  </style>
+</head>
+<body>
+<h1>Plan de Estudios Interactivo – Contador Público</h1>
+<div class="malla" id="malla"></div>
+<script>
+const materias = [
+  { codigo: "VC001", nombre: "Módulo Introductorio", correlativas: [] },
+  { codigo: "ATL01", nombre: "Matemática General", correlativas: [] },
+  { codigo: "ATL02", nombre: "Lectura y Escritura Académica", correlativas: [] },
+  { codigo: "V3127", nombre: "Estudio Eficiente", correlativas: [] },
+  { codigo: "V3128", nombre: "Lógica y Filosofía de la Ciencia", correlativas: ["ATL02", "V3127"] },
+  { codigo: "V3129", nombre: "Intro a la Contabilidad", correlativas: ["VC001", "ATL02", "V3127"] },
+  { codigo: "V3130", nombre: "Intro a la Economía", correlativas: ["VC001", "ATL02", "V3127"] },
+  { codigo: "V3131", nombre: "Cálculo Financiero", correlativas: ["ATL01", "V3129"] },
+  { codigo: "V3101", nombre: "Contabilidad I", correlativas: ["ATL01", "V3129"] },
+  { codigo: "V3102", nombre: "Intro al Derecho", correlativas: ["VC001", "ATL01", "V3128"] },
+  { codigo: "V3140", nombre: "Taller de TICs", correlativas: ["ATL01", "V3128", "V3129"] },
+  { codigo: "V3132", nombre: "Análisis Matemático", correlativas: ["VC001", "ATL01", "V3128"] },
+  { codigo: "V3104", nombre: "Sistemas de Información", correlativas: ["V3101"] },
+  { codigo: "V3133", nombre: "Ética", correlativas: ["V3128", "V3130", "V3102"] },
+  { codigo: "VR305", nombre: "Inglés I", correlativas: [] },
+  { codigo: "V3106", nombre: "Contabilidad II", correlativas: ["V3101"] },
+  { codigo: "V3134", nombre: "Álgebra", correlativas: ["V3132"] },
+  { codigo: "V3100", nombre: "Administración", correlativas: ["V3130", "V3101"] },
+  { codigo: "VR316", nombre: "Inglés II", correlativas: ["VR305"] },
+  { codigo: "V3135", nombre: "Microeconomía", correlativas: ["V3129", "V3130", "V3131", "V3132"] },
+  { codigo: "V3110", nombre: "Impuestos I", correlativas: ["V3101", "V3104"] },
+  { codigo: "V3107", nombre: "Estadística Aplicada", correlativas: ["V3132"] },
+  { codigo: "V3136", nombre: "Macroeconomía", correlativas: ["V3135"] },
+  { codigo: "V3115", nombre: "Impuestos II", correlativas: ["V3110"] },
+  { codigo: "V3114", nombre: "Obligaciones y Contratos", correlativas: ["V3102"] },
+  { codigo: "V3113", nombre: "Contabilidad Pública", correlativas: ["V3106"] },
+  { codigo: "V3108", nombre: "Administración Pública", correlativas: ["V3133", "V3134", "V3100"] },
+  { codigo: "V3138", nombre: "Derecho Administrativo", correlativas: ["V3110", "V3114"] },
+  { codigo: "VR327", nombre: "Inglés III", correlativas: ["VR316"] },
+  { codigo: "V3118", nombre: "Derecho Societario y Laboral", correlativas: ["V3115", "V3114"] },
+  { codigo: "V3119", nombre: "Gestión y Políticas Públicas", correlativas: ["V3136", "V3115", "V3108"] },
+  { codigo: "V3120", nombre: "Contabilidad de Costos", correlativas: ["V3106"] },
+  { codigo: "B5118", nombre: "Inglés IV", correlativas: ["VR327"] },
+  { codigo: "V3139", nombre: "Historia Económica y Social", correlativas: ["V3136"] },
+  { codigo: "V3122", nombre: "Auditoría y Gobernanza", correlativas: ["V3108", "V3119", "V3120"] },
+  { codigo: "V3123", nombre: "Cuentas Nacionales", correlativas: ["V3134", "V3107", "V3136"] },
+  { codigo: "V3147", nombre: "Taller de Trabajo Final", correlativas: ["VC001", "ATL01", "ATL02", "V3127", "V3128", "V3129", "V3130", "V3131", "V3101", "V3102", "V3140", "V3132", "V3104", "V3133", "VR305", "V3106", "V3134", "V3100", "VR316", "V3135", "V3110", "V3107", "V3136", "V3115", "V3114", "V3113", "V3108", "V3138"] },
+  { codigo: "V3148", nombre: "Práctica Profesional", correlativas: [] }
+];
+
+const estado = {};
+function render() {
+  const malla = document.getElementById("malla");
+  malla.innerHTML = "";
+  materias.forEach(mat => {
+    const desbloqueada = mat.correlativas.every(c => estado[c] === "aprobada");
+    const actual = estado[mat.codigo] || "bloqueada";
+    const clase = actual === "aprobada" ? "aprobada" : (desbloqueada ? "" : "bloqueada");
+
+    const div = document.createElement("div");
+    div.className = `materia ${clase}`;
+    div.innerHTML = `<strong>${mat.nombre}</strong><br><small>${mat.codigo}</small>`;
+    div.onclick = () => {
+      if (!desbloqueada) return;
+      estado[mat.codigo] = "aprobada";
+      render();
+    };
+    malla.appendChild(div);
+  });
+}
+render();
+</script>
+</body>
+</html>
